@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Goal</title>
+  <link rel="stylesheet" href="../build tools and configurations/oj-redwood-min.css">
+  <style>
+    body {
+      background-color: rgb(251, 249, 248);
+      margin: 0;
+      padding: 0;
+    }
+    .page-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 32px 40px 40px 40px;
+    }
+    .form-field {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 5px;
+      font-size: 1rem;
+      background: white;
+      box-sizing: border-box;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+    .tabs-container {
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 24px;
+    }
+    .tab {
+      display: inline-block;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      color: #666;
+    }
+    .tab.active {
+      color: #0066cc;
+      border-bottom-color: #0066cc;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .code-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      background: white;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .code-table th {
+      background-color: #f8f9fa;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+    }
+    .code-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #555;
+    }
+    .targets-content {
+      display: none;
+    }
+    .targets-content.active {
+      display: block;
+    }
+    .overview-content.active {
+      display: block;
+    }
+    .overview-content {
+      display: none;
+    }
+    .required-note {
+      color: #d32f2f;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .target-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: visible;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    .target-section:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .target-header {
+      background: #f8f9fa;
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 1rem;
+      color: #374151;
+      transition: background-color 0.2s ease;
+    }
+    .target-header:hover {
+      background: #f3f4f6;
+    }
+    .target-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chevron-icon {
+      font-size: 12px;
+      transition: transform 0.2s ease;
+      color: #6b7280;
+    }
+    .chevron-icon.expanded {
+      transform: rotate(90deg);
+    }
+    .target-content {
+      padding: 24px;
+      display: block;
+      overflow: visible;
+      transition: all 0.3s ease;
+    }
+    .target-content.collapsed {
+      display: none;
+    }
+    .delete-btn {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      background: transparent;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #333;
+    }
+    .delete-btn:hover {
+      background: #f5f5f5;
+      border-color: #999;
+    }
+    .add-target-btn {
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      background: transparent;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      font-weight: normal;
+      color: #333;
+    }
+    .add-target-btn:hover {
+      background: #f5f5f5;
+      border-color: #999;
+    }
+    .target-badge {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .target-content.collapsed {
+      display: none;
+    }
+    .form-row-three {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .dropdown-with-options {
+      position: relative;
+    }
+    .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #cfd8dc;
+      border-top: none;
+      border-radius: 0 0 5px 5px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 99999;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .dropdown-options.show {
+      display: block;
+    }
+    .dropdown-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.95rem;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dropdown-option:hover {
+      background: #f8f9fa;
+    }
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+    .form-input[readonly] {
+      cursor: pointer;
+    }
+    
+    /* Search Results Styles */
+    #search-results {
+      position: relative;
+    }
+    #search-results .dropdown-option {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #search-results .dropdown-option:hover {
+      background: #f8f9fa;
+    }
+    #search-results .dropdown-option:last-child {
+      border-bottom: none;
+    }
+    
+    /* Selected Concept Styles */
+    #selected-concept {
+      animation: slideIn 0.3s ease;
+    }
+    
+    .chevron {
+      transition: transform 0.2s;
+    }
+    .chevron.rotated {
+      transform: rotate(180deg);
+    }
+    @media (max-width: 768px) {
+      .page-container { padding: 16px; }
+      .form-row { grid-template-columns: 1fr; gap: 16px; }
+      .form-row-three { grid-template-columns: 1fr; gap: 12px; }
+    }
+  </style>
+</head>
+<body class="oj-web-applayout-body">
+  <div class="page-container">
+    <!-- Header -->
+    <div class="oj-flex oj-justify-content-space-between oj-align-items-center oj-margin-bottom" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 class="oj-header-border oj-typography-heading-lg" style="margin: 0; font-size: 2rem; font-weight: 700;">Goal Details</h1>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tab active" onclick="showTab('overview')">Goal Overview</div>
+      <div class="tab" onclick="showTab('references')">References</div>
+    </div>
+
+    <!-- Goal Overview Content -->
+    <div id="overview-content" class="overview-content active">
+
+    <div class="section-header" style="padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+        <h2 class="section-title" style="font-size: 1.1rem; font-weight: 600; color: #333;">General Information</h2>
+    </div>
+
+    <!-- Form Fields -->
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Goal Name <span style="color: #dc3545;">*</span></label>
+        <input type="text" class="form-input" placeholder="Enter goal name">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Status <span style="color: #dc3545;">*</span></label>
+        <select class="form-input">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Code Table -->
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px;">
+        <!-- Nomenclature/Code System Selection -->
+        <div style="flex: 0 0 200px;">
+          <label class="form-label">Code System <span style="color: #dc3545;">*</span></label>
+          <select id="code-system-select" class="form-input" onchange="clearCodeSelection()">
+            <option value="">Select Code System</option>
+            <option value="SNOMED-CT">SNOMED-CT</option>
+            <option value="ICD-10">ICD-10</option>
+            <option value="ICD-11">ICD-11</option>
+            <option value="LOINC">LOINC</option>
+            <option value="CPT">CPT</option>
+            <option value="HCPCS">HCPCS</option>
+            <option value="RxNorm">RxNorm</option>
+          </select>
+        </div>
+        
+        <!-- Search Box -->
+        <div style="flex: 1;">
+          <label class="form-label">Search Concepts <span style="color: #dc3545;">*</span></label>
+          <div style="position: relative;">
+            <input 
+              type="text" 
+              id="concept-search" 
+              class="form-input" 
+              placeholder="Type to search concepts in selected code system..."
+              disabled
+              oninput="searchConcepts(this.value)"
+              style="padding-right: 40px;"
+            >
+            <span id="search-spinner" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none; color: #666;">⟳</span>
+          </div>
+          
+          <!-- Search Results Dropdown -->
+          <div id="search-results" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <!-- Search results will be populated here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Selected Concept Display -->
+      <div id="selected-concept" style="display: none; background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="flex: 1;">
+            <div style="font-weight: 600; color: #333; margin-bottom: 4px;" id="concept-description">Selected Concept</div>
+            <div style="display: flex; gap: 24px; font-size: 0.9rem; color: #666;">
+              <span><strong>Code System:</strong> <span id="selected-code-system"></span></span>
+              <span><strong>Code:</strong> <span id="selected-code"></span></span>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            onclick="removeSelectedConcept()" 
+            style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; padding: 0; margin-left: 12px;"
+            title="Remove selected concept"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="form-field">
+      <label class="form-label">Categories <span style="color: #dc3545;">*</span></label>
+      <input type="text" class="form-input" placeholder="Enter category">
+    </div>
+
+    <!-- Targets Section within Goal Overview -->
+    <div class="section-header" style="margin-top: 32px;">
+      <h2 class="section-title">Targets</h2>
+    </div>
+
+    
+    <div id="targets-container" style="display: flex; flex-direction: column; gap: 12px;">
+      <!-- Targets will be added dynamically -->
+    </div>
+    
+    <button class="oj-button oj-button-outlined-chrome" onclick="addNewTarget()" style="padding: 8px 16px; border: 1px solid #0066cc; color: #0066cc; background: transparent; border-radius: 4px; cursor: pointer; margin-top: 16px;">
+      <span style="margin-right: 6px; font-size: 14px;">+</span>
+      <span class="oj-button-text">Add Target</span>
+    </button>
+    </div> 
+
+    <!-- References Content -->
+        <!-- References Content -->
+    <div id="references-content" class="targets-content">
+      <div class="section-header">
+        <h2 class="section-title">Care Plan Template References</h2>
+        <span style="color: #666; font-size: 0.9rem; font-weight: normal;">Templates that will use this goal (can be configured after creation)</span>
+      </div>
+      
+      <div style="background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 40px; text-align: center;">
+        <div style="color: #666; font-size: 1.1rem; margin-bottom: 16px;">
+          📋 No template references yet
+        </div>
+        <p style="margin: 0; color: #555; font-size: 0.9rem; line-height: 1.5;">
+          After creating this goal, you can reference it in care plan templates. 
+          Template references will appear here once the goal is saved and used in templates.
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="oj-flex oj-justify-content-flex-end oj-margin-top" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+      <button class="oj-button oj-button-outlined-chrome" style="padding: 10px 20px; border: 1px solid #ccc; background: transparent; border-radius: 4px; cursor: pointer;">
+        <span class="oj-button-text">Cancel</span>
+      </button>
+      <button class="oj-button oj-button-primary" style="padding: 10px 20px; border: 1px solid #0066cc; background: #0066cc; color: white; border-radius: 4px; cursor: pointer;">
+        <span class="oj-button-text">Create Goal</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let targetCounter = 1;
+    
+    function showTab(tabName) {
+      // Hide all content
+      document.getElementById('overview-content').classList.remove('active');
+      document.getElementById('references-content').classList.remove('active');
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected content and activate tab
+      if (tabName === 'overview') {
+        document.getElementById('overview-content').classList.add('active');
+        document.querySelectorAll('.tab')[0].classList.add('active');
+      } else if (tabName === 'references') {
+        document.getElementById('references-content').classList.add('active');
+        document.querySelectorAll('.tab')[1].classList.add('active');
+      }
+    }
+    
+    function navigateToTemplate(templateId) {
+      // Navigate to the specific care plan template
+      // This would typically redirect to the template page
+      console.log(`Navigating to template: ${templateId}`);
+      
+      // Example navigation - replace with actual routing logic
+      switch(templateId) {
+        case 'diabetes-management':
+          // window.location.href = '/templates/diabetes-management';
+          alert('Navigating to Diabetes Management Care Plan Template');
+          break;
+        case 'hypertension-protocol':
+          // window.location.href = '/templates/hypertension-protocol';
+          alert('Navigating to Hypertension Management Protocol Template');
+          break;
+        case 'chronic-pain-management':
+          // window.location.href = '/templates/chronic-pain-management';
+          alert('Navigating to Chronic Pain Management Plan Template');
+          break;
+        default:
+          alert('Template not found');
+      }
+    }
+    
+    function addNewTarget() {
+      targetCounter++;
+      const container = document.getElementById('targets-container');
+      const newTargetHtml = `
+        <div class="target-item" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; animation: slideIn 0.3s ease;">
+          <div style="flex: 1;">
+            <label class="form-label" style="margin-bottom: 6px; display: block;">Target ${targetCounter} - Observation</label>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="dropdown-with-options" style="position: relative; flex: 1;">
+                <input type="text" class="form-input" placeholder="Search for observation (e.g., Pain Score, Blood Glucose)" onclick="toggleDropdown(this, 'context-options-${targetCounter}')" readonly style="cursor: pointer; padding-right: 30px;">
+                <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #666;">▼</span>
+                <div id="context-options-${targetCounter}" class="dropdown-options">
+                  <div class="dropdown-option" onclick="selectOption(this, 'Pain Score')">Pain Score</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'Blood Glucose Level')">Blood Glucose Level</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'Blood Pressure')">Blood Pressure</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'Heart Rate')">Heart Rate</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'Weight')">Weight</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'BMI')">BMI</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'HbA1c Level')">HbA1c Level</div>
+                  <div class="dropdown-option" onclick="selectOption(this, 'Cholesterol Level')">Cholesterol Level</div>
+                </div>
+              </div>
+              <button class="oj-button oj-button-outlined-chrome oj-button-sm" onclick="deleteTarget(this)" style="padding: 8px 12px; border: 1px solid #dc3545; color: #dc3545; background: transparent; border-radius: 4px; cursor: pointer; font-size: 0.875rem; flex-shrink: 0; height: 42px;">
+                <span class="oj-button-text">Remove</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      container.insertAdjacentHTML('beforeend', newTargetHtml);
+    }
+    
+    function deleteTarget(button) {
+      const targetItem = button.closest('.target-item');
+      
+      // Add fade out animation
+      targetItem.style.animation = 'slideOut 0.3s ease';
+      
+      // Remove after animation
+      setTimeout(() => {
+        targetItem.remove();
+        
+        // Renumber remaining targets
+        const remainingTargets = document.querySelectorAll('.target-item');
+        remainingTargets.forEach((target, index) => {
+          const label = target.querySelector('.form-label');
+          label.textContent = `Target ${index + 1} - Observation`;
+        });
+        
+        // Update counter
+        targetCounter = remainingTargets.length;
+      }, 300);
+    }
+    
+    function toggleDropdown(input, optionsId) {
+      const options = document.getElementById(optionsId);
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.dropdown-options').forEach(dropdown => {
+        if (dropdown.id !== optionsId) {
+          dropdown.classList.remove('show');
+        }
+      });
+      
+      options.classList.toggle('show');
+    }
+    
+    function selectOption(option, value) {
+      const input = option.closest('.dropdown-with-options').querySelector('input');
+      input.value = value;
+      option.closest('.dropdown-options').classList.remove('show');
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.dropdown-with-options')) {
+        document.querySelectorAll('.dropdown-options').forEach(dropdown => {
+          dropdown.classList.remove('show');
+        });
+      }
+    });
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes slideOut {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Code System and Concept Search Functions
+    let searchTimeout;
+    let selectedConcept = null;
+    
+    // Mock data for different code systems - in real implementation, this would come from APIs
+    const mockConceptData = {
+      'SNOMED-CT': [
+        { code: '73211009', description: 'Diabetes mellitus' },
+        { code: '38341003', description: 'Hypertension' },
+        { code: '22298006', description: 'Myocardial infarction' },
+        { code: '195967001', description: 'Asthma' },
+        { code: '44054006', description: 'Type 2 diabetes mellitus' },
+        { code: '84114007', description: 'Heart failure' },
+        { code: '13645005', description: 'Chronic obstructive pulmonary disease' }
+      ],
+      'ICD-10': [
+        { code: 'E11', description: 'Type 2 diabetes mellitus' },
+        { code: 'I10', description: 'Essential hypertension' },
+        { code: 'I21', description: 'Acute myocardial infarction' },
+        { code: 'J45', description: 'Asthma' },
+        { code: 'I50', description: 'Heart failure' },
+        { code: 'J44', description: 'Chronic obstructive pulmonary disease' }
+      ],
+      'LOINC': [
+        { code: '33747-0', description: 'General appearance' },
+        { code: '72133-2', description: 'Glasgow coma scale total' },
+        { code: '9279-1', description: 'Respiratory rate' },
+        { code: '8867-4', description: 'Heart rate' },
+        { code: '2085-9', description: 'Cholesterol [Mass/volume] in Serum or Plasma' }
+      ]
+    };
+    
+    function clearCodeSelection() {
+      const codeSystemSelect = document.getElementById('code-system-select');
+      const conceptSearch = document.getElementById('concept-search');
+      const searchResults = document.getElementById('search-results');
+      const selectedConceptDiv = document.getElementById('selected-concept');
+      
+      // Clear search input and enable/disable based on selection
+      conceptSearch.value = '';
+      conceptSearch.disabled = !codeSystemSelect.value;
+      conceptSearch.placeholder = codeSystemSelect.value ? 
+        `Type to search concepts in ${codeSystemSelect.value}...` : 
+        'Select a code system first...';
+      
+      // Hide search results and selected concept
+      searchResults.style.display = 'none';
+      selectedConceptDiv.style.display = 'none';
+      selectedConcept = null;
+    }
+    
+    function searchConcepts(searchTerm) {
+      const codeSystemSelect = document.getElementById('code-system-select');
+      const searchResults = document.getElementById('search-results');
+      const spinner = document.getElementById('search-spinner');
+      
+      // Clear previous timeout
+      clearTimeout(searchTimeout);
+      
+      if (!searchTerm.trim() || !codeSystemSelect.value) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      // Show spinner
+      spinner.style.display = 'block';
+      
+      // Debounce search
+      searchTimeout = setTimeout(() => {
+        performSearch(searchTerm.toLowerCase(), codeSystemSelect.value);
+        spinner.style.display = 'none';
+      }, 300);
+    }
+    
+    function performSearch(searchTerm, codeSystem) {
+      const searchResults = document.getElementById('search-results');
+      const concepts = mockConceptData[codeSystem] || [];
+      
+      // Filter concepts based on search term
+      const filteredConcepts = concepts.filter(concept => 
+        concept.description.toLowerCase().includes(searchTerm) ||
+        concept.code.toLowerCase().includes(searchTerm)
+      );
+      
+      // Display results
+      if (filteredConcepts.length > 0) {
+        searchResults.innerHTML = filteredConcepts.map(concept => `
+          <div class="dropdown-option" onclick="selectConcept('${concept.code}', '${concept.description}', '${codeSystem}')" style="padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; hover-background: #f8f9fa;">
+            <div style="font-weight: 500; color: #333;">${concept.description}</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 2px;">${codeSystem}: ${concept.code}</div>
+          </div>
+        `).join('');
+        searchResults.style.display = 'block';
+      } else {
+        searchResults.innerHTML = '<div style="padding: 12px; color: #666; font-style: italic;">No concepts found matching your search.</div>';
+        searchResults.style.display = 'block';
+      }
+    }
+    
+    function selectConcept(code, description, codeSystem) {
+      const conceptSearch = document.getElementById('concept-search');
+      const searchResults = document.getElementById('search-results');
+      const selectedConceptDiv = document.getElementById('selected-concept');
+      
+      // Store selected concept
+      selectedConcept = { code, description, codeSystem };
+      
+      // Update UI
+      conceptSearch.value = '';
+      searchResults.style.display = 'none';
+      
+      // Show selected concept
+      document.getElementById('concept-description').textContent = description;
+      document.getElementById('selected-code-system').textContent = codeSystem;
+      document.getElementById('selected-code').textContent = code;
+      selectedConceptDiv.style.display = 'block';
+    }
+    
+    function removeSelectedConcept() {
+      const selectedConceptDiv = document.getElementById('selected-concept');
+      selectedConceptDiv.style.display = 'none';
+      selectedConcept = null;
+    }
+    
+    // Close search results when clicking outside
+    document.addEventListener('click', function(event) {
+      const searchContainer = event.target.closest('#concept-search').parentElement;
+      if (!searchContainer) {
+        document.getElementById('search-results').style.display = 'none';
+      }
+    });
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      clearCodeSelection();
+    });
+  </script>
