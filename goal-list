@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goal Dashboard</title>
+  <link rel="stylesheet" href="../build tools and configurations/oj-redwood-min.css">
+  <style>
+    body {
+      background-color: rgb(251, 249, 248);
+      margin: 0;
+      padding: 0;
+    }
+    .dashboard-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 32px 40px 40px 40px;
+    }
+    .custom-search-input {
+      padding: 7px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 5px;
+      font-size: 1rem;
+      width: 220px;
+    }
+    @media (max-width: 700px) {
+      .dashboard-container { padding: 12px; }
+    }
+  </style>
+</head>
+<body class="oj-web-applayout-body">
+  <div class="dashboard-container">
+    <div class="oj-flex oj-justify-content-space-between oj-align-items-center oj-margin-bottom" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 class="oj-header-border oj-typography-heading-lg" style="margin: 0; font-size: 2rem; font-weight: 700;">Goals</h1>
+      <div class="oj-flex oj-flex-items-pad" style="display: flex; gap: 12px;">
+        <button class="oj-button oj-button-outlined-chrome oj-button-sm" style="padding: 8px 16px; border: 1px solid #ccc; background: transparent; border-radius: 4px; cursor: pointer;">
+          <span style="margin-right: 6px; font-size: 14px;">✚</span>
+          <span class="oj-button-text">Add</span>
+        </button>
+        <button class="oj-button oj-button-outlined-chrome oj-button-sm" style="padding: 8px 16px; border: 1px solid #ccc; background: transparent; border-radius: 4px; cursor: pointer;">
+          <span style="margin-right: 6px; font-size: 14px;">⬆</span>
+          <span class="oj-button-text">Import</span>
+        </button>
+      </div>
+    </div>
+    <div class="oj-flex oj-align-items-center oj-margin-bottom" style="display: flex; align-items: center; margin-bottom: 18px; gap: 16px;">
+      <input type="text" placeholder="Search goals..." class="custom-search-input">
+      <select style="padding: 7px 12px; border: 1px solid #cfd8dc; border-radius: 5px; font-size: 1rem; background: white;">
+        <option value="">All Categories</option>
+        <option value="250502b">250502b</option>
+      </select>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; color: #333;">
+        <input type="checkbox" style="margin: 0;"> Active only
+      </label>
+    </div>
+    <table class="oj-table oj-table-stretch" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="padding: 16px; text-align: left; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb;">Name</th>
+          <th style="padding: 16px; text-align: left; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb;">Category</th>
+          <th style="padding: 16px; text-align: left; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 16px;">
+            <a href="#" class="oj-link">Long term goal</a>
+          </td>
+          <td style="padding: 16px;">250502b</td>
+          <td style="padding: 16px;">
+            <span class="oj-badge oj-badge-success">Active</span>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 16px;">
+            <a href="#" class="oj-link">Short term goal</a>
+          </td>
+          <td style="padding: 16px;">250502b</td>
+          <td style="padding: 16px;">
+            <span class="oj-badge oj-badge-danger">Inactive</span>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 16px;">
+            <a href="#" class="oj-link">Short term goal</a>
+          </td>
+          <td style="padding: 16px;">250502b</td>
+          <td style="padding: 16px;">
+            <span class="oj-badge oj-badge-success">Active</span>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 16px;">
+            <a href="#" class="oj-link">Short term goal</a>
+          </td>
+          <td style="padding: 16px;">250502b</td>
+          <td style="padding: 16px;">
+            <span class="oj-badge oj-badge-success">Active</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="oj-margin-top oj-text-align-right oj-text-color-secondary oj-typography-body-sm" style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 6px; color: #666; font-size: 0.95rem;">
+        <span>Page</span>
+        <input type="text" value="1" style="width: 35px; height: 28px; padding: 2px 6px; border: 1px solid #999; border-radius: 3px; text-align: center; font-size: 0.95rem;">
+        <span>of 5</span>
+        <span style="margin-left: 12px;">(1-10 of 45 items)</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 2px;">
+        <button style="padding: 4px 8px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 3px; cursor: not-allowed; color: #999; font-size: 14px;" disabled title="First page">
+          ⟪
+        </button>
+        <button style="padding: 4px 8px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 3px; cursor: not-allowed; color: #999; font-size: 14px;" disabled title="Previous page">
+          ⟨
+        </button>
+        <button style="padding: 4px 8px; border: 1px solid #666; background: white; color: #333; border-radius: 3px; cursor: pointer; font-size: 0.95rem; min-width: 28px;">
+          1
+        </button>
+        <button style="padding: 4px 8px; border: none; background: transparent; color: #0066cc; cursor: pointer; font-size: 0.95rem; min-width: 28px;">
+          2
+        </button>
+        <button style="padding: 4px 8px; border: none; background: transparent; color: #0066cc; cursor: pointer; font-size: 0.95rem; min-width: 28px;">
+          3
+        </button>
+        <button style="padding: 4px 8px; border: none; background: transparent; color: #0066cc; cursor: pointer; font-size: 0.95rem; min-width: 28px;">
+          4
+        </button>
+        <button style="padding: 4px 8px; border: none; background: transparent; color: #0066cc; cursor: pointer; font-size: 0.95rem; min-width: 28px;">
+          5
+        </button>
+        <button style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 3px; cursor: pointer; color: #333; font-size: 14px;" title="Next page">
+          ⟩
+        </button>
+        <button style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 3px; cursor: pointer; color: #333; font-size: 14px;" title="Last page">
+          ⟫
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
