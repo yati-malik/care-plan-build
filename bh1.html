@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGOI & SNAP Management System</title>
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Sidebar Styling */
+        .sidebar { height: 100vh; background-color: #212529; color: white; position: fixed; width: 250px; padding-top: 20px; z-index: 1000; overflow-y: auto; }
+        .sidebar h4 { color: #fff; margin-bottom: 20px; font-weight: 700; letter-spacing: 1px; }
+        .sidebar-label { font-size: 0.75rem; text-transform: uppercase; color: #6c757d; padding: 10px 20px 5px; letter-spacing: 1px; font-weight: 600; }
+        .sidebar a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 20px; border-left: 4px solid transparent; transition: all 0.2s; font-size: 0.95rem; }
+        .sidebar a:hover, .sidebar a.active { background-color: #343a40; color: #fff; border-left-color: #0d6efd; }
+        .sidebar i { width: 25px; text-align: center; margin-right: 10px; }
+
+        /* Content Area */
+        .content { margin-left: 250px; padding: 30px; }
+        
+        /* Cards & Tables */
+        .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); margin-bottom: 20px; border-radius: 0.5rem; }
+        .table-action-btn { width: 32px; height: 32px; padding: 0; line-height: 32px; text-align: center; }
+
+        /* Hierarchy Visuals */
+        .level-problem { border-left: 5px solid #dc3545; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .level-goal { border-left: 5px solid #0d6efd; margin-left: 25px; margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #e9ecef; border-left-width: 5px; }
+        .level-objective { border-left: 5px solid #198754; margin-left: 25px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 4px; border: 1px solid #e9ecef; border-left-width: 5px; }
+        .level-intervention { border-left: 5px solid #6f42c1; margin-left: 25px; margin-top: 15px; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px solid #e9ecef; border-left-width: 5px; }
+
+        .hidden { display: none !important; }
+        .badge-active { background-color: #198754; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; }
+        .badge-inactive { background-color: #6c757d; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; }
+        
+        /* Form View */
+        .form-view-container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar h4, .sidebar span, .sidebar-label { display: none; }
+            .content { margin-left: 60px; }
+            .sidebar a { padding: 15px 10px; text-align: center; }
+            .sidebar i { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Sidebar -->
+<div class="sidebar d-flex flex-column">
+    <h4 class="text-center">Care Admin</h4>
+    
+    <div class="sidebar-label">PGOI Catalog</div>
+    <a href="#" class="nav-link active" onclick="navigateToList('problems')"><i class="fas fa-exclamation-circle"></i> <span>Problems</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('goals')"><i class="fas fa-bullseye"></i> <span>Goals</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('objectives')"><i class="fas fa-tasks"></i> <span>Objectives</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('interventions')"><i class="fas fa-hand-holding-medical"></i> <span>Interventions</span></a>
+
+    <div class="sidebar-label">SNAP Catalog</div>
+    <a href="#" class="nav-link" onclick="navigateToList('strengths')"><i class="fas fa-dumbbell"></i> <span>Strengths</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('needs')"><i class="fas fa-hand-holding-heart"></i> <span>Needs</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('abilities')"><i class="fas fa-running"></i> <span>Abilities</span></a>
+    <a href="#" class="nav-link" onclick="navigateToList('preferences')"><i class="fas fa-heart"></i> <span>Preferences</span></a>
+
+    <div class="sidebar-label">Management</div>
+    <a href="#" class="nav-link" onclick="navigateToTemplates()"><i class="fas fa-project-diagram"></i> <span>Templates</span></a>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+    
+    <!-- VIEW: GENERIC LIST (Used for Problems, Goals, Objectives, etc.) -->
+    <div id="view-list" class="section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 id="list-title">Manage Items</h3>
+            <button class="btn btn-primary" onclick="openFormPage()"><i class="fas fa-plus"></i> Create New Item</button>
+        </div>
+
+        <div class="card p-0">
+            <table class="table table-hover mb-0" id="masterTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Description</th>
+                        <th id="th-narrative">Narrative</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="masterTableBody">
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- VIEW: FORM PAGE (Replaces Modal) -->
+    <div id="view-form" class="section hidden">
+        <div class="d-flex align-items-center mb-4">
+            <button class="btn btn-outline-secondary me-3" onclick="navigateBack()"><i class="fas fa-arrow-left"></i> Back</button>
+            <h3 id="form-title">Create Item</h3>
+        </div>
+
+        <div class="form-view-container">
+            <form id="masterForm">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="mDescription" rows="3" placeholder="Enter detailed description..."></textarea>
+                    <div class="form-text">The primary text that will appear in care plans.</div>
+                </div>
+                
+                <div class="mb-4" id="mNarrativeGroup">
+                    <label class="form-label fw-bold">Default Narrative</label>
+                    <textarea class="form-control" id="mNarrative" rows="4" placeholder="Enter default narrative text..."></textarea>
+                    <div class="form-text">Optional text used for documentation generation.</div>
+                </div>
+                
+                <!-- Diagnosis only for Problem -->
+                <div class="mb-4 hidden" id="mDiagnosisGroup">
+                    <label class="form-label fw-bold">Related Diagnosis (Optional)</label>
+                    <input type="text" class="form-control" id="mDiagnosis" placeholder="e.g. F41.1, R26.2">
+                    <div class="form-text">Comma separated ICD-10 or similar codes.</div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="mActive" checked>
+                        <label class="form-check-label fw-bold">Active Status</label>
+                    </div>
+                    <div class="form-text">Inactive items will not appear in new template selections.</div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-3">
+                    <button type="button" class="btn btn-light me-md-2" onclick="navigateBack()">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="saveFormEntry()">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW: TEMPLATES LIST -->
+    <div id="view-templates-list" class="section hidden">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Template Management</h3>
+            <button class="btn btn-success" onclick="startNewRefinedTemplate()"><i class="fas fa-plus"></i> Create Template</button>
+        </div>
+        
+        <div class="card p-2 mb-4 bg-light">
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a class="nav-link active" href="#">Refined Templates</a></li>
+                <li class="nav-item"><a class="nav-link disabled text-muted" href="#">Master Templates (Coming Soon)</a></li>
+            </ul>
+        </div>
+
+        <div class="card p-0">
+            <table class="table table-striped mb-0">
+                <thead class="table-light"><tr><th>Root Problem</th><th>Source</th><th>Status</th><th>Structure Summary</th></tr></thead>
+                <tbody id="refinedListBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- VIEW: TEMPLATE BUILDER -->
+    <div id="view-templates-builder" class="section hidden">
+        <div class="d-flex align-items-center mb-4">
+             <button class="btn btn-outline-secondary me-3" onclick="navigateToTemplates()"><i class="fas fa-arrow-left"></i> Back to List</button>
+             <h3>Refined Template Builder</h3>
+        </div>
+
+        <div class="card p-4 mb-4 border-primary border-2">
+            <div class="row mb-4 g-3">
+                <div class="col-md-6">
+                    <label class="form-label small text-muted text-uppercase fw-bold">Source Library</label>
+                    <select class="form-select" id="rtSource">
+                        <option>Organizational Defined</option>
+                        <option>Wiley</option>
+                        <option>Elsevier</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small text-muted text-uppercase fw-bold">Template Status</label>
+                    <select class="form-select" id="rtActive">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Hierarchy Canvas -->
+            <div id="hierarchyCanvas" class="mb-3"></div>
+
+            <div class="alert alert-warning d-flex align-items-center" id="validationMsg">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>Template incomplete.</div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary" onclick="navigateToTemplates()">Cancel</button>
+                <button class="btn btn-primary px-4" id="btnSaveRefined" disabled onclick="saveRefinedTemplate()">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal: Generic Selection -->
+<div class="modal fade" id="selectionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="selectModalTitle">Select Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="selectSearch" class="form-control mb-3" placeholder="Search..." onkeyup="filterSelectionList()">
+                <div class="list-group" id="selectionList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Message -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="messageModalBody">Action Successful</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --- DATA STORE ---
+    const db = {
+        problems: [
+            { id: 1, desc: "Anxiety related to environmental stressors", narrative: "Patient reports excessive worry.", active: true, diagnosis: "F41.1" },
+            { id: 2, desc: "Mobility Impairment secondary to injury", narrative: "Difficulty walking longer distances.", active: true, diagnosis: "R26.2" }
+        ],
+        goals: [
+            { id: 101, desc: "Reduce frequency of panic attacks to <1 per week", active: true },
+            { id: 102, desc: "Improve ambulation distance to 100ft", active: true }
+        ],
+        objectives: [
+            { id: 201, desc: "Patient will identify 2 triggers for anxiety", active: true },
+            { id: 202, desc: "Patient will walk 50ft with standby assistance", active: true }
+        ],
+        interventions: [
+            { id: 301, desc: "Teach diaphragm breathing exercises", active: true },
+            { id: 302, desc: "Physical Therapy referral for gait training", active: true }
+        ],
+        strengths: [
+            { id: 1, desc: "Supportive family member lives nearby", active: true }
+        ],
+        needs: [{ id: 1, desc: "Requires walker for stability", active: true }],
+        abilities: [],
+        preferences: [],
+        refinedTemplates: [] 
+    };
+
+    let currentContext = 'problems'; 
+    let editingId = null;
+    let selectCallback = null;
+
+    // --- NAVIGATION HELPERS ---
+    function hideAllSections() {
+        document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+    }
+
+    function updateSidebarActive(type) {
+        document.querySelectorAll('.sidebar a').forEach(el => el.classList.remove('active'));
+        // Simple logic to find link based on onclick content string
+        const links = document.querySelectorAll('.sidebar a');
+        for(let link of links) {
+            if(link.getAttribute('onclick').includes(`'${type}'`) || 
+              (type === 'templates' && link.getAttribute('onclick').includes('Templates'))) {
+                link.classList.add('active');
+                break;
+            }
+        }
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    // --- LIST LISTING VIEW ---
+    function navigateToList(type) {
+        currentContext = type;
+        hideAllSections();
+        updateSidebarActive(type);
+        document.getElementById('view-list').classList.remove('hidden');
+
+        // Update Title
+        document.getElementById('list-title').innerText = `Manage ${capitalize(type)}`;
+
+        // Determine if Narrative column should be shown (PGOI only)
+        const isPgoi = ['problems', 'goals', 'objectives', 'interventions'].includes(type);
+        document.getElementById('th-narrative').style.display = isPgoi ? 'table-cell' : 'none';
+
+        const tbody = document.getElementById('masterTableBody');
+        tbody.innerHTML = '';
+        const data = db[type] || [];
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted p-5">No ${type} found. Click "Create New Item" to add one.</td></tr>`;
+            return;
+        }
+
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <span class="fw-bold text-dark">${item.desc}</span>
+                    ${item.diagnosis ? `<br><small class="text-info"><i class="fas fa-stethoscope"></i> Dx: ${item.diagnosis}</small>` : ''}
+                </td>
+                <td style="display: ${isPgoi ? 'table-cell' : 'none'}"><small class="text-muted">${item.narrative || '-'}</small></td> 
+                <td><span class="badge ${item.active ? 'badge-active' : 'badge-inactive'}">${item.active ? 'Active' : 'Inactive'}</span></td>
+                <td class="text-end">
+                    <button class="btn btn-outline-primary table-action-btn me-1" onclick="openFormPage(${item.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-outline-danger table-action-btn" onclick="toggleActive('${type}', ${item.id})"><i class="fas fa-power-off"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function toggleActive(type, id) {
+        const item = db[type].find(x => x.id === id);
+        item.active = !item.active;
+        navigateToList(type); // Re-render
+    }
+
+    // --- FORM VIEW (CREATE/EDIT) ---
+    function openFormPage(id = null) {
+        hideAllSections();
+        document.getElementById('view-form').classList.remove('hidden');
+        document.getElementById('masterForm').reset();
+        editingId = id;
+
+        const isPgoi = ['problems', 'goals', 'objectives', 'interventions'].includes(currentContext);
+        
+        // Field Visibility
+        document.getElementById('mNarrativeGroup').classList.toggle('hidden', !isPgoi);
+        document.getElementById('mDiagnosisGroup').classList.toggle('hidden', currentContext !== 'problems');
+
+        // Set Title & Values
+        if (id) {
+            const item = db[currentContext].find(x => x.id === id);
+            document.getElementById('form-title').innerText = `Edit ${capitalize(currentContext.slice(0, -1))}`;
+            document.getElementById('mDescription').value = item.desc;
+            document.getElementById('mActive').checked = item.active;
+            if(isPgoi) document.getElementById('mNarrative').value = item.narrative || '';
+            if(currentContext === 'problems') document.getElementById('mDiagnosis').value = item.diagnosis || '';
+        } else {
+            document.getElementById('form-title').innerText = `Create New ${capitalize(currentContext.slice(0, -1))}`;
+        }
+    }
+
+    function navigateBack() {
+        navigateToList(currentContext);
+    }
+
+    function saveFormEntry() {
+        const desc = document.getElementById('mDescription').value;
+        const narrative = document.getElementById('mNarrative').value;
+        const active = document.getElementById('mActive').checked;
+        const diagnosis = document.getElementById('mDiagnosis').value;
+
+        if (!desc.trim()) { showMessage("Description is required"); return; }
+
+        if (editingId) {
+            const item = db[currentContext].find(x => x.id === editingId);
+            item.desc = desc;
+            item.active = active;
+            // Only update relevant fields
+            if(['problems', 'goals', 'objectives', 'interventions'].includes(currentContext)) item.narrative = narrative;
+            if(currentContext === 'problems') item.diagnosis = diagnosis;
+        } else {
+            const newItem = {
+                id: Date.now(),
+                desc: desc,
+                active: active
+            };
+            if(['problems', 'goals', 'objectives', 'interventions'].includes(currentContext)) newItem.narrative = narrative;
+            if(currentContext === 'problems') newItem.diagnosis = diagnosis;
+            db[currentContext].push(newItem);
+        }
+
+        showMessage("Item Saved Successfully!");
+        navigateBack();
+    }
+
+    // --- TEMPLATE VIEWS ---
+    function navigateToTemplates() {
+        hideAllSections();
+        updateSidebarActive('templates');
+        document.getElementById('view-templates-list').classList.remove('hidden');
+        renderRefinedList();
+    }
+
+    function startNewRefinedTemplate() {
+        hideAllSections();
+        document.getElementById('view-templates-builder').classList.remove('hidden');
+        builderState = { problem: null, goals: [] };
+        renderBuilderCanvas();
+        validateBuilder();
+    }
+
+    // --- TEMPLATE LOGIC (Same as before) ---
+    let builderState = { problem: null, goals: [] };
+
+    function renderBuilderCanvas() {
+        const canvas = document.getElementById('hierarchyCanvas');
+        canvas.innerHTML = '';
+
+        // 1. Problem Node
+        const problemDiv = document.createElement('div');
+        problemDiv.className = 'level-problem';
+        
+        if (!builderState.problem) {
+            problemDiv.innerHTML = `
+                <strong class="text-danger">Step 1: Select Problem</strong>
+                <select class="form-select mt-2" onchange="selectBuilderProblem(this.value)">
+                    <option value="">-- Choose Problem from Master List --</option>
+                    ${db.problems.filter(p => p.active).map(p => `<option value="${p.id}">${p.desc}</option>`).join('')}
+                </select>
+            `;
+        } else {
+            const pObj = db.problems.find(p => p.id == builderState.problem);
+            problemDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><span class="badge bg-danger me-2">PROBLEM</span> <span class="fw-bold">${pObj.desc}</span></div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="resetBuilderProblem()">Change</button>
+                </div>
+                <div class="mt-3 ps-3 border-start">
+                    <button class="btn btn-sm btn-outline-primary" onclick="addBuilderGoal()">+ Add Goal</button>
+                </div>
+            `;
+
+            // 2. Goals
+            builderState.goals.forEach((g, gIndex) => {
+                const goalDiv = document.createElement('div');
+                goalDiv.className = 'level-goal';
+                const gObj = db.goals.find(x => x.id == g.id);
+                
+                goalDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><span class="badge bg-primary me-2">GOAL</span> ${gObj ? gObj.desc : 'Unknown'}</div>
+                        <button class="btn btn-sm text-danger" onclick="removeBuilderGoal(${gIndex})"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="mt-2">
+                         <button class="btn btn-sm btn-outline-success" onclick="addBuilderObjective(${gIndex})">+ Add Objective</button>
+                    </div>
+                `;
+
+                // 3. Objectives
+                g.objectives.forEach((o, oIndex) => {
+                    const objDiv = document.createElement('div');
+                    objDiv.className = 'level-objective';
+                    const oObj = db.objectives.find(x => x.id == o.id);
+
+                    objDiv.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div><span class="badge bg-success me-2">OBJECTIVE</span> ${oObj ? oObj.desc : 'Unknown'}</div>
+                            <button class="btn btn-sm text-danger" onclick="removeBuilderObj(${gIndex}, ${oIndex})"><i class="fas fa-trash"></i></button>
+                        </div>
+                         <div class="mt-2">
+                             <button class="btn btn-sm btn-outline-dark" onclick="addBuilderIntervention(${gIndex}, ${oIndex})">+ Add Intervention</button>
+                        </div>
+                    `;
+
+                    // 4. Interventions
+                    o.interventions.forEach((i, iIndex) => {
+                        const intDiv = document.createElement('div');
+                        intDiv.className = 'level-intervention';
+                        const iObj = db.interventions.find(x => x.id == i.id);
+                        intDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><span class="badge bg-dark me-2">INTERVENTION</span> ${iObj ? iObj.desc : 'Unknown'}</div>
+                                <button class="btn btn-sm text-danger" onclick="removeBuilderInt(${gIndex}, ${oIndex}, ${iIndex})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                        objDiv.appendChild(intDiv);
+                    });
+                    goalDiv.appendChild(objDiv);
+                });
+                problemDiv.appendChild(goalDiv);
+            });
+        }
+        canvas.appendChild(problemDiv);
+        validateBuilder();
+    }
+
+    function selectBuilderProblem(id) { if(id) { builderState.problem = id; renderBuilderCanvas(); } }
+    function resetBuilderProblem() { if(confirm("Resetting problem clears hierarchy. Continue?")) { builderState = { problem: null, goals: [] }; renderBuilderCanvas(); } }
+
+    function addBuilderGoal() {
+        openSelectionModal("Select Goal", db.goals.filter(g => g.active), (id) => {
+            builderState.goals.push({ id: id, objectives: [] });
+            renderBuilderCanvas();
+        });
+    }
+    function addBuilderObjective(gIndex) {
+        openSelectionModal("Select Objective", db.objectives.filter(o => o.active), (id) => {
+            builderState.goals[gIndex].objectives.push({ id: id, interventions: [] });
+            renderBuilderCanvas();
+        });
+    }
+    function addBuilderIntervention(gIndex, oIndex) {
+        openSelectionModal("Select Intervention", db.interventions.filter(i => i.active), (id) => {
+            builderState.goals[gIndex].objectives[oIndex].interventions.push({ id: id });
+            renderBuilderCanvas();
+        });
+    }
+
+    function removeBuilderGoal(index) { builderState.goals.splice(index, 1); renderBuilderCanvas(); }
+    function removeBuilderObj(gIndex, oIndex) { builderState.goals[gIndex].objectives.splice(oIndex, 1); renderBuilderCanvas(); }
+    function removeBuilderInt(gIndex, oIndex, iIndex) { builderState.goals[gIndex].objectives[oIndex].interventions.splice(iIndex, 1); renderBuilderCanvas(); }
+
+    function validateBuilder() {
+        const msg = document.getElementById('validationMsg');
+        const btn = document.getElementById('btnSaveRefined');
+        let isValid = true;
+        let errorText = "";
+        
+        if (!builderState.problem) { isValid = false; errorText = "Select a root Problem."; } 
+        else if (builderState.goals.length === 0) { isValid = false; errorText = "Add at least one Goal."; } 
+        else {
+            for(let g of builderState.goals) {
+                if (g.objectives.length === 0) { isValid = false; errorText = "Goals must have Objectives."; break; }
+                for(let o of g.objectives) {
+                    if (o.interventions.length === 0) { isValid = false; errorText = "Objectives must have Interventions."; break; }
+                }
+                if(!isValid) break;
+            }
+        }
+
+        if (isValid) {
+            msg.className = "alert alert-success d-flex align-items-center";
+            msg.innerHTML = '<i class="fas fa-check-circle me-2"></i> Template valid.';
+            btn.disabled = false;
+        } else {
+            msg.className = "alert alert-warning d-flex align-items-center";
+            msg.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> ${errorText || "Template incomplete."}`;
+            btn.disabled = true;
+        }
+    }
+
+    function saveRefinedTemplate() {
+        const source = document.getElementById('rtSource').value;
+        const active = document.getElementById('rtActive').value === 'true';
+        db.refinedTemplates.push({
+            id: Date.now(),
+            source: source,
+            active: active,
+            data: JSON.parse(JSON.stringify(builderState))
+        });
+        showMessage("Template Saved!");
+        navigateToTemplates();
+    }
+
+    function renderRefinedList() {
+        const tbody = document.getElementById('refinedListBody');
+        tbody.innerHTML = '';
+        if(db.refinedTemplates.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-3 text-muted">No templates created.</td></tr>';
+            return;
+        }
+        db.refinedTemplates.forEach(t => {
+            const pObj = db.problems.find(x => x.id == t.data.problem);
+            let gCount = t.data.goals.length;
+            let oCount = t.data.goals.reduce((acc, g) => acc + g.objectives.length, 0);
+            tbody.innerHTML += `
+                <tr>
+                    <td class="fw-bold">${pObj ? pObj.desc : 'Unknown'}</td>
+                    <td>${t.source}</td>
+                    <td><span class="badge ${t.active ? 'badge-active' : 'badge-inactive'}">${t.active ? 'Active' : 'Inactive'}</span></td>
+                    <td><small class="text-muted">${gCount} Goals, ${oCount} Objectives</small></td>
+                </tr>
+            `;
+        });
+    }
+
+    // --- UTILS ---
+    function openSelectionModal(title, items, callback) {
+        document.getElementById('selectModalTitle').innerText = title;
+        const list = document.getElementById('selectionList');
+        list.innerHTML = '';
+        document.getElementById('selectSearch').value = '';
+        selectCallback = callback;
+
+        if(items.length === 0) { list.innerHTML = '<div class="p-3 text-center text-muted">No items available.</div>'; } 
+        else {
+            items.forEach(item => {
+                const a = document.createElement('a');
+                a.className = "list-group-item list-group-item-action";
+                a.style.cursor = "pointer";
+                a.innerHTML = `<strong>${item.desc}</strong>`;
+                a.onclick = () => { callback(item.id); selectionModal.hide(); };
+                a.dataset.search = item.desc.toLowerCase();
+                list.appendChild(a);
+            });
+        }
+        const selectionModal = new bootstrap.Modal(document.getElementById('selectionModal'));
+        selectionModal.show();
+    }
+
+    function filterSelectionList() {
+        const val = document.getElementById('selectSearch').value.toLowerCase();
+        Array.from(document.getElementById('selectionList').children).forEach(a => {
+            if(a.dataset.search) a.style.display = a.dataset.search.includes(val) ? 'block' : 'none';
+        });
+    }
+
+    function showMessage(msg) {
+        document.getElementById('messageModalBody').innerText = msg;
+        new bootstrap.Modal(document.getElementById('messageModal')).show();
+    }
+
+    // Init
+    navigateToList('problems');
+</script>
+
+</body>
+</html>
