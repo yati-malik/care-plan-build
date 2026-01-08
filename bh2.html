@@ -436,7 +436,14 @@
             const availableProblems = getAvailableProblemsForBuilder();
             
             let optionsHtml = availableProblems.map(p => `<option value="${p.id}">${p.desc}</option>`).join('');
-            if(availableProblems.length === 0) optionsHtml = `<option disabled>No valid problems available for this template type.</option>`;
+            
+            if(availableProblems.length === 0) {
+                if(builderMode === 'master') {
+                    optionsHtml = `<option disabled>All active problems already have Master Templates.</option>`;
+                } else {
+                    optionsHtml = `<option disabled>No Master Templates found. Create a Master Template first.</option>`;
+                }
+            }
 
             problemDiv.innerHTML = `
                 <strong class="text-danger">Step 1: Select Problem</strong>
@@ -518,11 +525,11 @@
     function getAvailableProblemsForBuilder() {
         if (builderMode === 'master') {
             // Return Active Problems NOT already in a Master Template
-            const usedIds = db.masterTemplates.map(t => t.problemId);
+            const usedIds = db.masterTemplates.map(t => Number(t.problemId));
             return db.problems.filter(p => p.active && !usedIds.includes(p.id));
         } else {
             // Return Problems THAT HAVE a Master Template
-            const validIds = db.masterTemplates.map(t => t.problemId);
+            const validIds = db.masterTemplates.map(t => Number(t.problemId));
             return db.problems.filter(p => validIds.includes(p.id));
         }
     }
@@ -559,7 +566,21 @@
     }
 
     // --- ACTIONS ---
-    function selectBuilderProblem(id) { if(id) { builderState.problem = id; renderBuilderCanvas(); } }
+    function selectBuilderProblem(id) { 
+        if(id) { 
+            builderState.problem = Number(id); 
+            
+            // Auto-populate for Refined Template
+            if (builderMode === 'refined') {
+                const mt = db.masterTemplates.find(t => t.problemId == builderState.problem);
+                if (mt && mt.data && mt.data.goals) {
+                    builderState.goals = JSON.parse(JSON.stringify(mt.data.goals));
+                }
+            }
+            
+            renderBuilderCanvas(); 
+        } 
+    }
     function resetBuilderProblem() { if(confirm("Resetting problem clears the tree. Continue?")) { builderState = { problem: null, goals: [] }; renderBuilderCanvas(); } }
 
     function addBuilderGoal() {
